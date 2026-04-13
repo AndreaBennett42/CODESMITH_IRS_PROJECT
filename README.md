@@ -6,7 +6,7 @@ Hybrid script runs a 3-search flow over your codebase and fact graph.
 ```bash
 cd <project-root>
 source .venv_ai/bin/activate
-python hybrid_rag.py
+python hybrid_rag.py --debug-retrieval
 ```
 
 Optional environment check:
@@ -19,7 +19,6 @@ Optional debug modes:
 python hybrid_rag.py --plain-debug
 python hybrid_rag.py --rich-debug
 ```
-
 ## Runtime And Environment
 - Runtime: local macOS
 - Active environment: `.venv_ai`
