@@ -1,63 +1,76 @@
 # CODESMITH IRS RAG
 
-This folder contains the RAG portion of the IRS project. The hybrid script runs a 3-search retrieval flow over the codebase and fact graph to support evidence-based tax audit analysis.
+This repository contains the RAG portion of the IRS project. It provides a hybrid retrieval workflow built to help engineers search legacy tax-related code and supporting sources, identify impact zones, and gather evidence before making COBOL changes.
 
 ## Project Purpose
-This RAG workflow is used to:
+
+The broader project focused on teaching IRS engineers how to scan a legacy COBOL codebase for impact zones and inject updated tip-deduction logic safely. This repository extends that work by providing a RAG-based search tool that helps engineers:
+
 - retrieve evidence from multiple tax-related sources
 - identify relevant logic and impact zones
 - return cited findings instead of unsupported guesses
-- support decision-making before COBOL changes are applied
+- support decision making before COBOL changes are applied
 
 ## Quick Start
+
+Prerequisites:
+- Python 3.12
+- Ollama installed locally
+
+Setup:
+
 ```bash
-cd <project-root>
+git clone <your-repo-url>
+cd <repo-name>
+python3.12 -m venv .venv_ai
 source .venv_ai/bin/activate
+pip install -r requirements.txt
+ollama pull llama3
+ollama pull nomic-embed-text
+```
+
+Run:
+
+```bash
 python hybrid_rag.py --debug-retrieval
 ```
-## Sample Query:
-"Find guidance under §224 regarding the deduction for qualified tips, including transition relief"
 
+Sample query:
 
-Optional environment check:
+"Find guidance under Section 224 regarding the deduction for qualified tips, including transition relief"
+
+## Optional Commands
+
+Environment check:
+
 ```bash
 ./env_check.sh
 ```
 
-Optional debug modes:
+Additional debug modes:
+
 ```bash
 python hybrid_rag.py --plain-debug
 python hybrid_rag.py --rich-debug
 ```
 
-## Runtime And Environment
-- Runtime: local macOS
-- Active environment: `.venv_ai`
-- Main script: `hybrid_rag.py`
-
-Environment checks:
-- `./env_check.sh` validates that `.venv_ai` is active
-- If the wrong environment is active, it prints `WRONG ENV DETECTED` and activation instructions
-
 ## Retrieval Flow
 
 ### 1. Direct File vector search
 - searches chunks from `./direct-file`
-- returns score, file/line refs, and chunk/vector metadata
+- returns score, file and line references, and chunk metadata
 
 ### 2. Tax-Calculator vector search
 - searches chunks from `./Tax-Calculator/taxcalc`
-- returns score, file/line refs, and chunk/vector metadata
+- returns score, file and line references, and chunk metadata
 
 ### 3. Fact-graph search
 - searches XML facts and dependencies from the `FACTS_XML` directory
-- returns graph score, fact path, source file/line, and dependency count
+- returns graph score, fact path, source file and line, and dependency count
 
-## Prompt And Output
+## Output
 
-Prompt behavior:
-- if a query is missing, the script prompts:
-  - `Enter your audit query:`
+If no query is provided, the script prompts with `Enter your audit query:`.
 
 Expected output sections:
 - `Key Findings`
@@ -66,30 +79,14 @@ Expected output sections:
 - `Evidence Gaps`
 - `Next Steps`
 
-Output controls:
-- enforced structure includes `Evidence Gaps` and `Next Steps`
-- retrieval output includes explicit references and metadata
-
-## Debug Retrieval
-
-Available modes:
-- `--debug-retrieval` = plain retrieval debug output
-- `--plain-debug` = plain-text debug output
-- `--rich-debug` = Rich table debug output
-
-Plain debug markers:
-- `NOTE > ...`
-- `[SEARCH PARAMS] ...`
-- `[RESULT n] ...`
-
 ## Config
 
-Configured in `.env`:
+Configured through environment variables such as:
 - `DIRECT_FILE_CODE_DIR=./direct-file`
 - `TAX_CALC_CODE_DIR=./Tax-Calculator/taxcalc`
 - `FACTS_XML=./direct-file/backend/src/main/resources/tax`
 
 ## Notes
-- `FACTS_XML` supports directory indexing across all XML files
-- text markers are portable across terminals, though colors may vary
-- this RAG workflow is supporting analysis for the larger IRS project, not a standalone production tax engine
+
+- `FACTS_XML` supports directory indexing across XML files
+- this RAG workflow supports analysis for the larger IRS project and is not a standalone production tax engine
